@@ -1,0 +1,117 @@
+{
+  "theme": "dark",
+  "archetype": "Jewel & Luxury / Performance Pro (Dark Luxe Automotive)",
+  "typography": {
+    "fonts": {
+      "heading": "Syne, sans-serif",
+      "body": "Manrope, sans-serif"
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight",
+      "h3": "text-xl sm:text-2xl tracking-tight",
+      "h4": "text-lg sm:text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm",
+      "overline": "text-xs uppercase tracking-[0.2em] font-bold"
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#0b0b0d",
+      "surface_1": "#131318",
+      "surface_2": "#18181f"
+    },
+    "accent": {
+      "primary": "#ff3d00",
+      "secondary": "#ffb000"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a1a1aa",
+      "muted": "#71717a"
+    },
+    "borders": {
+      "subtle": "rgba(255, 255, 255, 0.1)",
+      "focus": "#ff3d00",
+      "hover": "rgba(255, 61, 0, 0.5)"
+    }
+  },
+  "visual_enhancers": {
+    "texture": "Grain noise overlay on the main body to maintain the dark automotive vibe.",
+    "surfaces": {
+      "nav": "Glassmorphism: bg-[#0b0b0d]/80 backdrop-blur-xl border-b border-white/10",
+      "cards": "Solid flat surface: bg-[#18181f], 1px border border-white/10, no soft shadow. Sharp or rounded-md corners max.",
+      "dashboard": "Technical Grid: border-collapse, subtle borders on right/bottom.",
+      "buttons": "Primary CTA uses #ff3d00. Dark text on primary buttons for contrast."
+    }
+  },
+  "layout": {
+    "spacing": "Generous spacing between main sections (py-16 to py-24). Tight spacing inside marketplace grids (gap-4 to gap-6).",
+    "marketplace_grid": "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5. Image-first priority.",
+    "dashboard_grid": "MODE B: The Control Room (dense, max width, strict hierarchy)."
+  },
+  "components": {
+    "navigation": "Sticky header. Prominent center search bar with category filters. User/Admin icon on right.",
+    "category_chips": "Horizontal scrollable row directly below header. Pill-shaped chips. Active chip takes #ff3d00 background.",
+    "listing_card": "Facebook Marketplace style: Image takes up ~75% of card height. Clean price (large bold), truncated title, and condition/location below. Hover scales image slightly and lightens border.",
+    "listing_detail": "Bento grid structure. Main large image carousel (col-span-full lg:col-span-8). Sticky sidebar (col-span-full lg:col-span-4) for price, key specs, and 'Contact via WhatsApp/Internal Chat' CTAs.",
+    "admin_dashboard": "Admin-only route. Sidebar nav for Listings, Messages, Settings. Tables for inventory. Modals/Drawers for Create/Edit listings with image upload zone.",
+    "chat_panel": "Dual-pane layout. Left: conversation list. Right: active chat thread. Integrated tightly into the dark theme.",
+    "login_page": "Minimalist centered card on dark background with subtle orange glow effect."
+  },
+  "motion": {
+    "hover": "Interactive cards -translate-y-1, border brightens. Button bg lightens. Images zoom subtly (scale-105).",
+    "page_transition": "Simple opacity fade-in."
+  },
+  "accessibility": {
+    "contrast": "Ensure dark text on the orange (#ff3d00) buttons for high contrast.",
+    "focus": "Use focus-visible:ring-2 focus-visible:ring-[#ff3d00] outline-none.",
+    "testing": "All interactive elements MUST include data-testid attribute."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1668037069509-ba4c569475b1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBjYXIlMjBkYXJrfGVufDB8fHx8MTc3OTIyOTQ3Nnww&ixlib=rb-4.1.0&q=85",
+        "category": "hero",
+        "description": "Black sports car for main hero background"
+      },
+      {
+        "url": "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "hero_alt",
+        "description": "Dramatic 370z with tail lights for alternate hero or banner"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1778923096146-62bb36b04a87?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwyfHxjYXIlMjBlbmdpbmUlMjBwYXJ0c3xlbnwwfHx8fDE3NzkyMjk0NzZ8MA&ixlib=rb-4.1.0&q=85",
+        "category": "category_parts",
+        "description": "Detailed car engine for Refacciones category or listing placeholder"
+      },
+      {
+        "url": "https://images.pexels.com/photos/11455717/pexels-photo-11455717.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "category_parts_alt",
+        "description": "Modern metallic car engine part for listing placeholders"
+      },
+      {
+        "url": "https://images.pexels.com/photos/5661690/pexels-photo-5661690.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "category_rims",
+        "description": "Stylish car rims arranged on shelves for Rines category or listing placeholder"
+      },
+      {
+        "url": "https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "contact_bg",
+        "description": "Mechanic working in dimly lit garage for contact section background"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Preserve existing aesthetic strictly: #0b0b0d, #131318, #18181f with #ff3d00 accents. Do NOT deviate to a generic light theme.",
+    "Use Syne for all display headings and Manrope for body text and numbers.",
+    "Ensure all generated frontend code uses .js/.jsx file extensions as per the project requirements, NOT .tsx.",
+    "For the marketplace grid, prioritize a high-density, image-first card layout similar to Facebook Marketplace. No bulky paddings around the card content.",
+    "For buttons using the primary #ff3d00 background, ensure text contrast by using black or very dark text if white doesn't meet minimum contrast.",
+    "All interactive elements MUST have data-testid attributes.",
+    "Build the dashboard using pure functional Shadcn components with custom styling (dark backgrounds). Admin only needs access.",
+    "Implement the categories (Refacciones, Rines, Autos) as sticky chips below the main search navigation.",
+    "Apply grain noise overlay across the main background container to preserve the luxe automotive vibe."
+  ]
+}
