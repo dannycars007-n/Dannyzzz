@@ -8,12 +8,7 @@ export default function Footer() {
     >
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-8 h-8 rounded-md bg-[#ff3d00] flex items-center justify-center text-black font-display font-bold">
-              DZ
-            </span>
-            <span className="font-display text-lg font-bold">DannyZCars</span>
-          </div>
+          <img src="/logo.png" alt="DannyZCars" className="h-14 w-auto object-contain mb-3" />
           <p className="text-sm text-zinc-500 max-w-sm">
             Refacciones, rines y autos seleccionados. Calidad, estilo y performance.
           </p>

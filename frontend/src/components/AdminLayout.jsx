@@ -18,11 +18,10 @@ export default function AdminLayout({ children, unread = 0 }) {
     <div className="App grain min-h-screen font-body">
       <header className="border-b border-white/10 bg-[#0b0b0d]/85 backdrop-blur-xl sticky top-0 z-40" data-testid="admin-header">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-          <Link to="/admin" className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-md bg-[#ff3d00] flex items-center justify-center text-black font-display font-bold">DZ</span>
-            <div>
-              <div className="font-display font-bold text-base leading-tight">DannyZCars</div>
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[#ff3d00] font-bold">Panel admin</div>
+          <Link to="/admin" className="flex items-center gap-3">
+            <img src="/logo.png" alt="DannyZCars" className="h-11 w-auto object-contain" />
+            <div className="text-[10px] uppercase tracking-[0.25em] text-[#ff3d00] font-bold hidden sm:block">
+              Panel admin
             </div>
           </Link>
           <div className="flex items-center gap-2">

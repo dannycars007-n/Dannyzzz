@@ -31,9 +31,8 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen App grain flex items-center justify-center px-4 py-12 font-body">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center gap-2 justify-center mb-8 group" data-testid="login-brand">
-          <span className="w-10 h-10 rounded-md bg-[#ff3d00] flex items-center justify-center text-black font-display font-bold text-lg">DZ</span>
-          <span className="font-display font-bold text-xl tracking-tight">DannyZCars</span>
+        <Link to="/" className="flex items-center justify-center mb-8 group" data-testid="login-brand">
+          <img src="/logo.png" alt="DannyZCars" className="h-16 w-auto object-contain" />
         </Link>
         <div className="bg-[#131318] border border-white/10 rounded-xl p-8 login-glow" data-testid="login-card">
           <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#ff3d00] font-bold mb-2">

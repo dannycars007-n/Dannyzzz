@@ -31,12 +31,11 @@ export default function Navbar({ defaultQuery = "" }) {
     >
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-3 flex items-center gap-3 sm:gap-6">
         <Link to="/" className="flex items-center gap-2 group shrink-0" data-testid="brand-link">
-          <span className="w-9 h-9 rounded-md bg-[#ff3d00] flex items-center justify-center text-black font-display font-bold text-lg">
-            DZ
-          </span>
-          <span className="font-display font-bold text-lg sm:text-xl tracking-tight hidden sm:block">
-            DannyZCars
-          </span>
+          <img
+            src="/logo.png"
+            alt="DannyZCars"
+            className="h-11 sm:h-12 w-auto object-contain"
+          />
         </Link>
 
         <form
