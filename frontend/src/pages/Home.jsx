@@ -13,8 +13,7 @@ const HERO_BG =
 
 const SECTIONS = [
   { slug: "refacciones", num: "01", title: "Piezas que marcan la diferencia", desc: "Motor, suspensión, frenos, transmisión, carrocería, sistema eléctrico y más." },
-  { slug: "rines", num: "02", title: "Estilo sobre ruedas", desc: "Rines deportivos, réplica y forjados. Diseño, ligereza y resistencia." },
-  { slug: "autos", num: "03", title: "Autos listos para rodar", desc: "Vehículos seminuevos revisados pieza por pieza. Entrega inmediata." },
+  { slug: "autos", num: "02", title: "Autos listos para rodar", desc: "Vehículos seminuevos revisados pieza por pieza. Entrega inmediata." },
 ];
 
 export default function Home() {
@@ -45,11 +44,15 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0b0d]/60 via-[#0b0b0d]/80 to-[#0b0b0d]" aria-hidden />
         <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-24 sm:py-32 lg:py-40">
-          <div className="text-xs uppercase tracking-[0.3em] text-[#ff3d00] mb-6 font-bold" data-testid="hero-eyebrow">
-            Marketplace automotriz · México
+          <div className="mb-6" data-testid="hero-eyebrow">
+            <img
+              src="/logo.png"
+              alt="DannyZCars"
+              className="h-14 sm:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_0_25px_rgba(255,61,0,0.35)]"
+            />
           </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tighter text-white max-w-4xl leading-[0.95] text-glow" data-testid="hero-title">
-            Refacciones, rines y autos. <br />
+            Refacciones y autos. <br />
             <span className="text-[#ff3d00]">Listos para rodar.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-base sm:text-lg text-zinc-300 leading-relaxed" data-testid="hero-desc">
@@ -58,7 +61,7 @@ export default function Home() {
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild className="btn-accent h-12 px-6 text-sm font-bold" data-testid="hero-cta-browse">
               <Link to="/browse">
-                Explorar marketplace <ArrowRight className="ml-2 w-4 h-4" />
+                Explorar catálogo <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12 px-6 text-sm border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white" data-testid="hero-cta-categories">

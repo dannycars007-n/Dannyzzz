@@ -10,14 +10,13 @@ export default function Footer() {
         <div>
           <img src="/logo.png" alt="DannyZCars" className="h-14 w-auto object-contain mb-3" />
           <p className="text-sm text-zinc-500 max-w-sm">
-            Refacciones, rines y autos seleccionados. Calidad, estilo y performance.
+            Refacciones y autos seleccionados. Calidad, estilo y performance.
           </p>
         </div>
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Categorías</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/browse?category=refacciones" className="text-zinc-300 hover:text-[#ff3d00]">Refacciones</Link></li>
-            <li><Link to="/browse?category=rines" className="text-zinc-300 hover:text-[#ff3d00]">Rines</Link></li>
             <li><Link to="/browse?category=autos" className="text-zinc-300 hover:text-[#ff3d00]">Autos</Link></li>
           </ul>
         </div>

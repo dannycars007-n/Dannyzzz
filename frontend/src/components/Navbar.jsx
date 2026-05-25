@@ -49,7 +49,7 @@ export default function Navbar({ defaultQuery = "" }) {
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar refacciones, rines, autos..."
+              placeholder="Buscar refacciones, autos..."
               className="pl-10 h-11 bg-[#18181f] border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-[#ff3d00] focus-visible:ring-2 focus-visible:border-[#ff3d00]"
               data-testid="navbar-search-input"
             />
@@ -60,7 +60,6 @@ export default function Navbar({ defaultQuery = "" }) {
           {[
             { to: "/browse", label: "Explorar" },
             { to: "/browse?category=refacciones", label: "Refacciones" },
-            { to: "/browse?category=rines", label: "Rines" },
             { to: "/browse?category=autos", label: "Autos" },
           ].map((l) => (
             <Link
@@ -136,7 +135,6 @@ export default function Navbar({ defaultQuery = "" }) {
             {[
               { to: "/browse", label: "Explorar" },
               { to: "/browse?category=refacciones", label: "Refacciones" },
-              { to: "/browse?category=rines", label: "Rines" },
               { to: "/browse?category=autos", label: "Autos" },
             ].map((l) => (
               <Link

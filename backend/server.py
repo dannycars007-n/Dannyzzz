@@ -144,7 +144,7 @@ class ListingBase(BaseModel):
     description: str
     price: float
     currency: str = "MXN"
-    category: Literal["refacciones", "rines", "autos"]
+    category: Literal["refacciones", "autos"]
     subcategory: Optional[str] = None
     condition: Literal["nuevo", "seminuevo", "usado"] = "usado"
     location: str = ""
@@ -289,7 +289,6 @@ CATEGORIES = {
             "Interiores & Accesorios", "Combustible & Admisión",
         ],
     },
-    "rines": {"name": "Rines", "subcategories": ["17\"", "18\"", "19\"", "20\"", "22\""]},
     "autos": {"name": "Autos", "subcategories": ["Sedán", "Hatchback", "SUV", "Pickup", "Deportivo"]},
 }
 
