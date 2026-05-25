@@ -8,7 +8,7 @@ import os
 import pytest
 import requests
 
-BASE = os.environ.get("REACT_APP_BACKEND_URL", "https://admin-listing-hub.preview.emergentagent.com").rstrip("/")
+BASE = os.environ.get("REACT_APP_BACKEND_URL", "https://display-page-3.preview.emergentagent.com").rstrip("/")
 API = f"{BASE}/api"
 
 ADMIN_EMAIL = "admin@dannyzcars.com"
