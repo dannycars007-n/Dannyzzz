@@ -80,8 +80,11 @@ export default function AdminLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-zinc-500 hover:text-[#ff3d00]" data-testid="login-back">
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <Link to="/admin/forgot" className="text-sm text-[#ff3d00] hover:text-[#ff5722] font-medium" data-testid="login-forgot">
+              ¿Olvidaste tu contraseña?
+            </Link>
+            <Link to="/" className="text-sm text-zinc-500 hover:text-zinc-300" data-testid="login-back">
               ← Volver al marketplace
             </Link>
           </div>

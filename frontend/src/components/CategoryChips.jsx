@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 const CATS = [
   { slug: "", label: "Todo" },
   { slug: "refacciones", label: "Refacciones" },
+  { slug: "rines", label: "Rines" },
   { slug: "autos", label: "Autos" },
 ];
 

@@ -7,9 +7,11 @@ load_dotenv(ROOT_DIR / '.env')
 import os
 import uuid
 import logging
+import asyncio
 import bcrypt
 import jwt
 import requests
+import resend
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal
 
@@ -39,6 +41,20 @@ ADMIN_WHATSAPP = os.environ.get('ADMIN_WHATSAPP', '')
 EMERGENT_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 APP_NAME = os.environ.get('APP_NAME', 'dannyzcars')
 STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+
+# Email notifications (Resend)
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '').strip()
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev').strip()
+NOTIFY_EMAIL = os.environ.get('NOTIFY_EMAIL', '').strip()
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
+# Default security questions seeded for admin (admin can change later)
+DEFAULT_SECURITY_QUESTIONS = [
+    {"question": "¿Cuál fue el nombre de tu primer perro?", "answer": "Boby"},
+    {"question": "¿Dónde naciste?", "answer": "Monterrey"},
+    {"question": "¿Cuál es el nombre de tu mamá?", "answer": ""},
+]
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -119,7 +135,10 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(status_code=401, detail="Sesión expirada")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token inválido")
-    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    user = await db.users.find_one(
+        {"id": payload["sub"]},
+        {"_id": 0, "password_hash": 0, "security_questions": 0},
+    )
     if not user:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     return user
@@ -144,7 +163,7 @@ class ListingBase(BaseModel):
     description: str
     price: float
     currency: str = "MXN"
-    category: Literal["refacciones", "autos"]
+    category: Literal["refacciones", "rines", "autos"]
     subcategory: Optional[str] = None
     condition: Literal["nuevo", "seminuevo", "usado"] = "usado"
     location: str = ""
@@ -178,6 +197,66 @@ class AdminReplyInput(BaseModel):
     message: str
 
 
+# --- Profile / Security ---
+class ProfileUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    name: Optional[str] = None
+    whatsapp: Optional[str] = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+class SecurityQA(BaseModel):
+    question: str
+    # answer is optional on read — if None on update means "keep existing"
+    answer: Optional[str] = None
+
+
+class SecurityQuestionsUpdate(BaseModel):
+    questions: List[SecurityQA]
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetVerify(BaseModel):
+    email: EmailStr
+    answers: List[str]
+    new_password: str = Field(min_length=8)
+
+
+# ---------------------------------------------------------------------------
+# Email helper
+# ---------------------------------------------------------------------------
+def _normalize_answer(s: str) -> str:
+    return (s or "").strip().lower()
+
+
+async def send_notification_email(subject: str, html: str) -> bool:
+    """Send notification email to the admin's NOTIFY_EMAIL. Non-blocking and
+    silently no-op when Resend is not configured."""
+    if not RESEND_API_KEY or not NOTIFY_EMAIL:
+        logger.info("Email skipped (RESEND_API_KEY or NOTIFY_EMAIL not set)")
+        return False
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [NOTIFY_EMAIL],
+            "subject": subject,
+            "html": html,
+        }
+        result = await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Email sent: {result.get('id') if isinstance(result, dict) else result}")
+        return True
+    except Exception as e:
+        logger.exception(f"Failed to send notification email: {e}")
+        return False
+
+
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
@@ -202,6 +281,10 @@ async def on_startup():
     # Seed admin
     existing = await db.users.find_one({"email": ADMIN_EMAIL})
     if not existing:
+        seeded_questions = [
+            {"question": q["question"], "answer_hash": hash_password(_normalize_answer(q["answer"]))}
+            for q in DEFAULT_SECURITY_QUESTIONS if q.get("answer")
+        ]
         await db.users.insert_one({
             "id": str(uuid.uuid4()),
             "email": ADMIN_EMAIL,
@@ -209,16 +292,22 @@ async def on_startup():
             "name": ADMIN_NAME,
             "role": "admin",
             "whatsapp": ADMIN_WHATSAPP,
+            "security_questions": seeded_questions,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
         logger.info(f"Admin seeded: {ADMIN_EMAIL}")
     else:
-        if not verify_password(ADMIN_PASSWORD, existing.get("password_hash", "")):
+        # Backfill security questions for legacy admin records (only if missing)
+        if "security_questions" not in existing or not existing.get("security_questions"):
+            seeded_questions = [
+                {"question": q["question"], "answer_hash": hash_password(_normalize_answer(q["answer"]))}
+                for q in DEFAULT_SECURITY_QUESTIONS if q.get("answer")
+            ]
             await db.users.update_one(
                 {"email": ADMIN_EMAIL},
-                {"$set": {"password_hash": hash_password(ADMIN_PASSWORD)}}
+                {"$set": {"security_questions": seeded_questions}},
             )
-            logger.info("Admin password updated")
+            logger.info("Admin security questions seeded")
 
     # Initialize storage (best-effort)
     try:
@@ -261,7 +350,8 @@ async def login(data: LoginInput, response: Response):
     set_auth_cookie(response, token)
     return {
         "id": user["id"], "email": user["email"], "name": user.get("name", ""),
-        "role": user.get("role", "admin"), "token": token,
+        "role": user.get("role", "admin"), "whatsapp": user.get("whatsapp", ""),
+        "token": token,
     }
 
 
@@ -289,6 +379,7 @@ CATEGORIES = {
             "Interiores & Accesorios", "Combustible & Admisión",
         ],
     },
+    "rines": {"name": "Rines", "subcategories": ["17\"", "18\"", "19\"", "20\"", "22\""]},
     "autos": {"name": "Autos", "subcategories": ["Sedán", "Hatchback", "SUV", "Pickup", "Deportivo"]},
 }
 
@@ -467,6 +558,32 @@ async def create_message(data: MessageInput):
     }
     await db.threads.insert_one(thread)
     thread.pop("_id", None)
+
+    # Notify admin by email (best-effort, doesn't block on failure)
+    try:
+        listing_line = f"<p><strong>Publicación:</strong> {listing_title}</p>" if listing_title else ""
+        phone_line = f"<p><strong>Teléfono:</strong> {data.phone}</p>" if data.phone else ""
+        html_body = f"""
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #0b0b0d; color: #fff;">
+  <div style="border-bottom: 2px solid #ff3d00; padding-bottom: 12px; margin-bottom: 20px;">
+    <h2 style="color: #ff3d00; margin: 0;">Nuevo mensaje en DannyZCars</h2>
+  </div>
+  <p><strong>De:</strong> {data.name} &lt;{data.email}&gt;</p>
+  {phone_line}
+  {listing_line}
+  <p style="margin-top: 16px;"><strong>Mensaje:</strong></p>
+  <div style="background: #18181f; border-left: 3px solid #ff3d00; padding: 12px 16px; border-radius: 4px; white-space: pre-wrap;">{data.message}</div>
+  <p style="margin-top: 24px; font-size: 12px; color: #888;">Responde desde el panel admin de DannyZCars.</p>
+</div>
+""".strip()
+        subject_listing = f" — {listing_title}" if listing_title else ""
+        await send_notification_email(
+            subject=f"DannyZCars · Nuevo mensaje de {data.name}{subject_listing}",
+            html=html_body,
+        )
+    except Exception as e:
+        logger.warning(f"Email notify failed (non-blocking): {e}")
+
     return {"id": thread_id, "ok": True}
 
 
@@ -512,6 +629,112 @@ async def admin_stats(admin: dict = Depends(require_admin)):
     threads = await db.threads.count_documents({})
     unread = await db.threads.count_documents({"unread_for_admin": True})
     return {"total_listings": total, "active_listings": active, "total_threads": threads, "unread_threads": unread}
+
+
+# ---------------------------------------------------------------------------
+# Routes — Admin profile / password / security questions
+# ---------------------------------------------------------------------------
+@api.put("/admin/profile")
+async def update_profile(data: ProfileUpdate, admin: dict = Depends(require_admin)):
+    update = {}
+    if data.email is not None:
+        new_email = data.email.lower()
+        if new_email != admin["email"]:
+            exists = await db.users.find_one({"email": new_email, "id": {"$ne": admin["id"]}})
+            if exists:
+                raise HTTPException(status_code=400, detail="Ese correo ya está en uso")
+            update["email"] = new_email
+    if data.name is not None:
+        update["name"] = data.name.strip()
+    if data.whatsapp is not None:
+        update["whatsapp"] = data.whatsapp.strip()
+    if not update:
+        raise HTTPException(status_code=400, detail="No hay cambios")
+    await db.users.update_one({"id": admin["id"]}, {"$set": update})
+    user = await db.users.find_one({"id": admin["id"]}, {"_id": 0, "password_hash": 0, "security_questions": 0})
+    return user
+
+
+@api.put("/admin/password")
+async def change_password(data: PasswordChange, response: Response, admin: dict = Depends(require_admin)):
+    full = await db.users.find_one({"id": admin["id"]})
+    if not full or not verify_password(data.current_password, full.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+    await db.users.update_one(
+        {"id": admin["id"]},
+        {"$set": {"password_hash": hash_password(data.new_password)}},
+    )
+    # Refresh token so the new session is consistent
+    token = create_access_token(admin["id"], admin["email"])
+    set_auth_cookie(response, token)
+    return {"ok": True, "token": token}
+
+
+@api.get("/admin/security-questions")
+async def get_security_questions(admin: dict = Depends(require_admin)):
+    full = await db.users.find_one({"id": admin["id"]}, {"_id": 0, "security_questions": 1})
+    items = (full or {}).get("security_questions", []) or []
+    # Return only the questions (no hashed answers) — frontend can re-enter
+    return [{"question": q.get("question", ""), "has_answer": bool(q.get("answer_hash"))} for q in items]
+
+
+@api.put("/admin/security-questions")
+async def set_security_questions(data: SecurityQuestionsUpdate, admin: dict = Depends(require_admin)):
+    if not data.questions or len(data.questions) < 2:
+        raise HTTPException(status_code=400, detail="Mínimo 2 preguntas")
+    full = await db.users.find_one({"id": admin["id"]}, {"security_questions": 1})
+    existing = (full or {}).get("security_questions", []) or []
+    new_items = []
+    for idx, q in enumerate(data.questions):
+        question_text = (q.question or "").strip()
+        if not question_text:
+            raise HTTPException(status_code=400, detail=f"Pregunta {idx + 1} vacía")
+        # If answer provided → hash it. If not provided but existing has one → keep existing hash.
+        answer_hash = None
+        if q.answer is not None and q.answer.strip():
+            answer_hash = hash_password(_normalize_answer(q.answer))
+        elif idx < len(existing):
+            answer_hash = existing[idx].get("answer_hash")
+        if not answer_hash:
+            raise HTTPException(status_code=400, detail=f"Falta respuesta para la pregunta {idx + 1}")
+        new_items.append({"question": question_text, "answer_hash": answer_hash})
+    await db.users.update_one(
+        {"id": admin["id"]},
+        {"$set": {"security_questions": new_items}},
+    )
+    return {"ok": True, "count": len(new_items)}
+
+
+# ---------------------------------------------------------------------------
+# Routes — Public password reset via security questions
+# ---------------------------------------------------------------------------
+@api.post("/auth/forgot-password/questions")
+async def get_reset_questions(data: PasswordResetRequest):
+    """Public: returns the security questions for a given admin email.
+    For privacy, always returns 200 with at least the questions array (empty if not found)."""
+    user = await db.users.find_one({"email": data.email.lower()}, {"security_questions": 1})
+    questions = (user or {}).get("security_questions", []) or []
+    return {"questions": [q.get("question", "") for q in questions]}
+
+
+@api.post("/auth/forgot-password/verify")
+async def reset_password_verify(data: PasswordResetVerify, response: Response):
+    user = await db.users.find_one({"email": data.email.lower()})
+    if not user:
+        raise HTTPException(status_code=400, detail="Datos incorrectos")
+    questions = user.get("security_questions") or []
+    if not questions or len(questions) != len(data.answers):
+        raise HTTPException(status_code=400, detail="Número de respuestas incorrecto")
+    for q, ans in zip(questions, data.answers):
+        if not verify_password(_normalize_answer(ans), q.get("answer_hash", "")):
+            raise HTTPException(status_code=400, detail="Respuestas incorrectas")
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"password_hash": hash_password(data.new_password)}},
+    )
+    token = create_access_token(user["id"], user["email"])
+    set_auth_cookie(response, token)
+    return {"ok": True, "token": token}
 
 
 # ---------------------------------------------------------------------------

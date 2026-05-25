@@ -13,7 +13,8 @@ const HERO_BG =
 
 const SECTIONS = [
   { slug: "refacciones", num: "01", title: "Piezas que marcan la diferencia", desc: "Motor, suspensión, frenos, transmisión, carrocería, sistema eléctrico y más." },
-  { slug: "autos", num: "02", title: "Autos listos para rodar", desc: "Vehículos seminuevos revisados pieza por pieza. Entrega inmediata." },
+  { slug: "rines", num: "02", title: "Estilo sobre ruedas", desc: "Rines deportivos, réplica y forjados. Diseño, ligereza y resistencia." },
+  { slug: "autos", num: "03", title: "Autos listos para rodar", desc: "Vehículos seminuevos revisados pieza por pieza. Entrega inmediata." },
 ];
 
 export default function Home() {
@@ -48,11 +49,11 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="DannyZCars"
-              className="h-14 sm:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_0_25px_rgba(255,61,0,0.35)]"
+              className="h-24 sm:h-32 lg:h-40 xl:h-48 w-auto object-contain drop-shadow-[0_0_40px_rgba(255,61,0,0.45)]"
             />
           </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tighter text-white max-w-4xl leading-[0.95] text-glow" data-testid="hero-title">
-            Refacciones y autos. <br />
+            Refacciones, rines y autos. <br />
             <span className="text-[#ff3d00]">Listos para rodar.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-base sm:text-lg text-zinc-300 leading-relaxed" data-testid="hero-desc">

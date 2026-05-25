@@ -10,9 +10,11 @@ import Home from "@/pages/Home";
 import Browse from "@/pages/Browse";
 import ListingDetail from "@/pages/ListingDetail";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminForgotPassword from "@/pages/AdminForgotPassword";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminListingForm from "@/pages/AdminListingForm";
 import AdminMessages from "@/pages/AdminMessages";
+import AdminSettings from "@/pages/AdminSettings";
 
 function App() {
   useEffect(() => {
@@ -28,11 +30,20 @@ function App() {
           <Route path="/browse" element={<Browse />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/forgot" element={<AdminForgotPassword />} />
           <Route
             path="/admin"
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <AdminSettings />
               </ProtectedRoute>
             }
           />

@@ -238,18 +238,114 @@ backend:
         agent: "testing"
         comment: "Backend authentication works correctly. Admin user is seeded on startup (log shows 'Admin seeded: admin@dannyzcars.com'). Login endpoint returns 401 for invalid credentials and succeeds with correct credentials. JWT token generation and validation working."
 
+  - task: "Auth /me endpoint security"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/auth/me returns 200 with user info. Correctly excludes sensitive fields: security_questions and password_hash are NOT leaked in response. Login response now includes whatsapp field as expected."
+
+  - task: "Categories endpoint with rines restored"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/categories returns all 3 categories: refacciones, rines, and autos. The 'rines' category has been successfully restored with 5 subcategories (17\", 18\", 19\", 20\", 22\")."
+
+  - task: "Admin profile update endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "PUT /api/admin/profile works correctly. Returns 200 with valid name change, accepts empty name, returns 400 'No hay cambios' with empty body, and returns 401 without auth. All validation working as expected."
+
+  - task: "Admin password change endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "PUT /api/admin/password works correctly. Returns 400 'Contraseña actual incorrecta' with wrong current password, returns 200 with new token on success. Verified login works with new password. Password successfully changed and restored to '16dontwanna'."
+
+  - task: "Security questions admin endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/admin/security-questions returns 200 with array of {question, has_answer}. Includes seeded questions: '¿Cuál fue el nombre de tu primer perro?' and '¿Dónde naciste?'. PUT endpoint validates minimum 2 questions, rejects empty question text, accepts valid updates. Security questions restored to original state."
+
+  - task: "Forgot password flow - public endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/auth/forgot-password/questions returns 200 with questions array for valid email, returns empty array for fake email (privacy). POST /api/auth/forgot-password/verify returns 400 'Respuestas incorrectas' with wrong answers, returns 200 with token for correct answers (Boby, Monterrey). Verified login works with new password. Password successfully reset back to '16dontwanna' via forgot-password endpoint."
+
+  - task: "Messages endpoint with email notification"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/messages (public, no auth) returns 200 with {id, ok:true}. Thread successfully created and visible in admin GET /api/admin/threads. Email notification is skipped (RESEND_API_KEY is empty) - backend logs show 'Email skipped' and endpoint still returns 200 (non-blocking as designed)."
+
+  - task: "Listings with rines category"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/listings?category=rines returns 200. POST /api/listings with category='rines' successfully creates listing and returns 200. The 'rines' category is now fully functional for both read and write operations."
+
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
   test_date: "2026-05-25"
 
 test_plan:
-  current_focus:
-    - "Admin Login Credentials Issue"
+  current_focus: []
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
@@ -257,3 +353,5 @@ agent_communication:
     message: "Completed comprehensive admin flow testing. Found ONE CRITICAL issue: Login credentials mismatch between review request (DannyZ2026!) and backend .env (16dontwanna). All other functionality works correctly. Console shows 2 expected 401 errors for /api/auth/me calls before login, which is normal behavior. No other errors found."
   - agent: "testing"
     message: "Test results summary: ✓ Dashboard working, ✓ Category/subcategory dropdowns working, ✓ Form submission working, ✓ Image upload button present, ✓ Messages page working, ✓ Category chips working, ✓ Browse filters working. Only issue is credential mismatch in documentation/review request."
+  - agent: "testing"
+    message: "Completed testing of NEW backend endpoints (test sequence 2). All 43 tests PASSED. Tested: (1) Existing endpoints - login with whatsapp field, /me without sensitive data leak, categories with rines restored. (2) Admin profile endpoint - all validation working. (3) Password change endpoint - working with token refresh. (4) Security questions endpoints - GET/PUT working with proper validation. (5) Forgot password flow - questions retrieval and verify working, privacy preserved. (6) Messages endpoint - thread creation working, email notification skipped (RESEND_API_KEY empty, non-blocking). (7) Listings with rines - read/write working. Admin password and security questions restored to original state (16dontwanna, Boby, Monterrey)."

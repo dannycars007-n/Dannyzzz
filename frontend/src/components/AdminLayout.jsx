@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Plus, MessageSquare, LogOut, ExternalLink } from "lucide-react";
+import { LayoutGrid, Plus, MessageSquare, LogOut, ExternalLink, Settings } from "lucide-react";
 
 export default function AdminLayout({ children, unread = 0 }) {
   const { user, logout } = useAuth();
@@ -12,6 +12,7 @@ export default function AdminLayout({ children, unread = 0 }) {
     { to: "/admin", label: "Publicaciones", icon: LayoutGrid, testid: "admin-nav-listings" },
     { to: "/admin/new", label: "Nueva publicación", icon: Plus, testid: "admin-nav-new" },
     { to: "/admin/messages", label: "Mensajes", icon: MessageSquare, testid: "admin-nav-messages", badge: unread },
+    { to: "/admin/settings", label: "Configuración", icon: Settings, testid: "admin-nav-settings" },
   ];
 
   return (
